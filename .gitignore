@@ -1,0 +1,9 @@
+/log
+/db/*.sqlite3
+/coverage/
+Password_and_token*
+*db
+/venv
+/env
+/__pycache__/
+.idea/
