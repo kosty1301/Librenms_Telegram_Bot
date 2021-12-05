@@ -5,7 +5,7 @@ from alert_dispach import AlertDispach
 from settings import *
 from Password_and_token import *
 from bot import Bot
-from models import User, Device, UserDevice, get_devices_or_false
+from models import User, Device, UserDevice, get_devices_for_user
 from librenms import LibreNMSAPI
 from exceptions import *
 
@@ -75,29 +75,35 @@ def add_device(update):
 
 @login_required
 def device_list(update):
+    title = 'Name:   ' + 'id:' + '\n'
     text, chat = bot.context(update)
-    dev_list = get_devices_or_false(chat)
-    result = 'name:   ' + 'id:' + '\n'
-    if dev_list:
-        for i in dev_list:
-            name = Device.get_or_none(librenms_id=i).name
-            result += name + ': ' + str(i) + '\n'
-        return bot.send_message(result, chat)
-    bot.send_message(DEVICE_LIST_IS_NULL, chat)
+    dev_list = get_devices_for_user(chat)
+    result = '\n'.join([f'{key.capitalize()}: '
+                        f'{value}' for key, value in dev_list.items()])
+    bot.send_message(title + result, chat)
+
+
+def refresh_db():
+    try:
+        devices = librenms_api.get_id_and_name_list()
+        dev_in_local_db = {str(dev): dev.name for dev in Device.select()}
+        diff = devices.keys() - dev_in_local_db.keys()
+        to_insert = [(i, devices[i]) for i in diff]
+        Device.insert_many(to_insert,
+                           fields=[Device.librenms_id,
+                                   Device.name]).execute()
+        print_info('db has ben refresh')
+        return True
+    except LibrenmsApiError as error:
+        print_error(error)
+        return False
 
 
 @login_required
 def refresh_device_list(update):
     text, chat = bot.context(update)
     message = DATABASE_REFRESH
-    try:
-        devices = librenms_api.get_id_and_name_list()
-        for dev_id, name in devices.items():
-            device = Device.get_or_none(Device.librenms_id == dev_id)
-            if not device:
-                Device.get_or_create(librenms_id=dev_id, name=name)
-
-    except LibrenmsApiError:
+    if not refresh_db():
         message = DATABASE_REFRESH_ERROR
     bot.send_message(message, chat)
 
@@ -119,8 +125,12 @@ def handler(updates):
 
 
 def main():
+    need_to_refresh_db = True
     last_update_id = None
     while True:
+        if need_to_refresh_db:
+            refresh_db()
+            need_to_refresh_db = False
         updates = bot.get_updates(last_update_id)
         if len(updates["result"]) > 0:
             last_update_id = bot.get_last_update_id(updates) + 1
@@ -129,7 +139,8 @@ def main():
         try:
             alerts = librenms_api.get_alert_devices()
         except LibrenmsApiError as error:
-            print_error(f'{error}, LIBRENMS_URL: {LIBRENMS_URL}, please check it')
+            print_error(f'{error}, '
+                        f'LIBRENMS_URL: {LIBRENMS_URL}, please check it')
             continue
         alert_dispach = AlertDispach(alerts.keys())
         alert_dispach.create_new_alerts()

@@ -34,13 +34,13 @@ class UserDevice(Model):
         database = db
 
 
-def get_devices_or_false(chat_id):
+def get_devices_for_user(chat_id):
     query = (Device
              .select()
              .join(UserDevice)
              .join(User)
              .where(User.chat_id == chat_id).execute())
-    return [i for i in query] if len(query) > 0 else False
+    return {dev.name: dev.librenms_id for dev in query}
 
 
 if __name__ == '__main__':
