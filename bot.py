@@ -17,7 +17,7 @@ class Bot:
 
     @staticmethod
     def get_url(url: str) -> str:
-        response = requests.get(url)
+        response = requests.get(url, timeout=30)
         content = response.content.decode("utf8")
         return content
 
@@ -27,7 +27,7 @@ class Bot:
         return js
 
     def get_updates(self, offset=None):
-        url = self.url + "getUpdates?timeout=100"
+        url = self.url + "getUpdates?timeout=500"
         if offset:
             url += "&offset={}".format(offset)
         js = self.get_json_from_url(url)

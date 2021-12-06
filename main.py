@@ -142,6 +142,8 @@ def main():
             print_error(f'{error}, '
                         f'LIBRENMS_URL: {LIBRENMS_URL}, please check it')
             continue
+        except Exception as e:
+            print_error(e)
         alert_dispach = AlertDispach(alerts.keys())
         alert_dispach.create_new_alerts()
         alert_dispach.send_alerts_to_users()
