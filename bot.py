@@ -17,7 +17,7 @@ class Bot:
 
     @staticmethod
     def get_url(url: str) -> str:
-        response = requests.get(url, timeout=30)
+        response = requests.get(url)
         content = response.content.decode("utf8")
         return content
 
