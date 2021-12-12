@@ -125,12 +125,9 @@ def handler(updates):
 
 
 def main():
-    need_to_refresh_db = True
+    refresh_db()
     last_update_id = None
     while True:
-        if need_to_refresh_db:
-            refresh_db()
-            need_to_refresh_db = False
         updates = bot.get_updates(last_update_id)
         if len(updates["result"]) > 0:
             last_update_id = bot.get_last_update_id(updates) + 1
@@ -144,6 +141,7 @@ def main():
             continue
         except Exception as e:
             print_error(e)
+            continue
         alert_dispach = AlertDispach(alerts.keys())
         alert_dispach.create_new_alerts()
         alert_dispach.send_alerts_to_users()
@@ -153,4 +151,3 @@ def main():
 if __name__ == "__main__":
     print_info('bot has started')
     main()
-
