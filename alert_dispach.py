@@ -9,7 +9,7 @@ from bot import Bot
 bot = Bot(TELEGRAM_TOKEN)
 
 
-def delay_is_over(device):
+def delay_is_over(device: Device) -> bool:
     return (dt.now() - device
             .last_alert_data > timedelta(minutes=DALEY_FOR_ALERT))
 
@@ -55,7 +55,7 @@ class AlertDispach:
             dev.alert_is_send = False
             dev.save()
 
-    def create_new_alerts(self):
+    def create_new_alerts(self) -> None:
         query = (Device.update(last_alert_data=dt.now())
                  .where(Device.librenms_id
                         .in_(self.new_alerts)))

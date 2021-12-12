@@ -14,17 +14,18 @@ def is_ipv4(ip):
         return False
 
 
-class LibreNMSAPI(object):
+class LibreNMSAPI:
     def __init__(self, auth_token, request_headers, api_url):
-        super(LibreNMSAPI, self).__init__()
         self.api_url = api_url
         self.headers = request_headers
         self.auth_token = auth_token
 
+    # not used
     def get_alert_rule(self, rule_id):
         req = self.api_url + "rules/" + str(rule_id)
         return requests.get(req, headers=self.headers).json()["rules"][0]
 
+    # not used
     def get_alert(self, alert_id):
         req = self.api_url + "alert/" + str(alert_id)
 
@@ -49,7 +50,6 @@ class LibreNMSAPI(object):
 
     def list_services(self):
         req = self.api_url + "services"
-
         return requests.get(req, headers=self.headers).json()["devices"]
 
     @staticmethod

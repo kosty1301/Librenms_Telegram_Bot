@@ -25,7 +25,6 @@ echo "Please input your Telegram Token"
     read TELEGRAM_TOKEN
 
 
-
 echo "PASSWORD = '$PASSWORD'"  >> Password_and_token.py
 echo "TELEGRAM_TOKEN = '$TELEGRAM_TOKEN'"  >> Password_and_token.py
 echo "LIBRENMS_TOKEN = '$LIBRENMS_TOKEN'"  >> Password_and_token.py
