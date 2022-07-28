@@ -10,6 +10,7 @@ if ls -l | grep Password_and_token.py
         fi
 fi
 
+
 echo "# passwords and token"  > Password_and_token.py
 
 echo "Please fingerprint new password:"
